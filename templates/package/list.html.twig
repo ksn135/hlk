@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ archive ? 'Архив' : 'Активные пакеты' }} — ЛК{% endblock %}
+
+{% block body %}
+<section class="section">
+    <h1>{{ archive ? 'Архив' : 'Пакеты на согласование' }}</h1>
+    <p class="muted">{{ archive ? 'Отправленные и отозванные пакеты' : 'Документы, доступные для проверки и правки' }}</p>
+
+    {% if packages is empty %}
+        <p class="empty">Пока нет пакетов.</p>
+    {% else %}
+        <ul class="package-list">
+            {% for package in packages %}
+                <li>
+                    <a href="{{ path('app_package_show', {guid: package.guid}) }}" class="package-card">
+                        <div class="package-card-title">{{ package.displayTitle }}</div>
+                        <div class="package-card-meta">
+                            <span class="badge badge-{{ package.status.value }}">{{ package.status.label }}</span>
+                            {% if package.attribute('initiator') %}
+                                <span>Инициатор: {{ package.attribute('initiator') }}</span>
+                            {% endif %}
+                            {% if package.attribute('deadline') %}
+                                <span>Срок: {{ package.attribute('deadline') }}</span>
+                            {% endif %}
+                        </div>
+                        {% if package.attributes %}
+                            <dl class="attr-inline">
+                                {% for attr in package.attributes|slice(0, 4) %}
+                                    <div><dt>{{ attr.label }}</dt><dd>{{ attr.value }}</dd></div>
+                                {% endfor %}
+                            </dl>
+                        {% endif %}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</section>
+{% endblock %}

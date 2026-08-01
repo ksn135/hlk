@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>OnlyOffice</title>
+    <style>
+        html, body { height: 100%; margin: 0; padding: 0; }
+        #onlyoffice-editor { height: 100%; }
+    </style>
+</head>
+<body>
+    <div id="onlyoffice-editor"></div>
+    <script src="{{ scriptPath }}"></script>
+    <script>
+        window.onload = function () {
+            if (typeof DocsAPI === 'undefined') {
+                alert('Не удалось загрузить OnlyOffice Document Server.');
+                return;
+            }
+            new DocsAPI.DocEditor('onlyoffice-editor', {{ config|json_encode|raw }});
+        };
+    </script>
+</body>
+</html>

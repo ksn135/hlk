@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Вход — ЛК контрагента{% endblock %}
+
+{% block body %}
+<div class="auth-wrap">
+    <div class="auth-card">
+        <h1>Личный кабинет</h1>
+        <p class="auth-sub">Войдите по логину (обычно ИНН) и паролю</p>
+
+        {% if error %}
+            <div class="flash flash-error">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_login') }}" class="auth-form">
+            <label for="login">Логин</label>
+            <input type="text" id="login" name="login" value="{{ last_username }}" required autofocus autocomplete="username">
+
+            <label for="password">Пароль</label>
+            <input type="password" id="password" name="password" required autocomplete="current-password">
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <button type="submit">Войти</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

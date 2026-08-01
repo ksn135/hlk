@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ package.displayTitle }} — ЛК{% endblock %}
+
+{% block body %}
+<section class="section">
+    <p class="back"><a href="{{ path(package.status.value == 'active' ? 'app_home' : 'app_archive') }}">← Назад</a></p>
+    <h1>{{ package.displayTitle }}</h1>
+    <p><span class="badge badge-{{ package.status.value }}">{{ package.status.label }}</span></p>
+
+    {% if package.attributes %}
+        <dl class="attr-grid">
+            {% for attr in package.attributes %}
+                <div>
+                    <dt>{{ attr.label }}</dt>
+                    <dd>{{ attr.value }}</dd>
+                </div>
+            {% endfor %}
+        </dl>
+    {% endif %}
+
+    <h2>Документы</h2>
+    <ul class="file-list">
+        {% for file in package.files %}
+            <li class="file-row">
+                <div>
+                    <strong>{{ file.displayName }}</strong>
+                    <span class="muted">{{ file.status.label }}</span>
+                </div>
+                <div class="file-actions">
+                    {% if file.isWord %}
+                        {% if package.status.editable %}
+                            <a class="btn" href="{{ path('onlyoffice_editor', {id: file.id, mode: 'edit'}) }}">Редактировать</a>
+                        {% else %}
+                            <a class="btn btn-secondary" href="{{ path('onlyoffice_editor', {id: file.id, mode: 'view'}) }}">Просмотр</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </li>
+        {% else %}
+            <li class="muted">Файлов нет</li>
+        {% endfor %}
+    </ul>
+
+    {% if package.status.editable %}
+        <form method="post" action="{{ path('app_package_submit', {guid: package.guid}) }}" class="submit-form"
+              onsubmit="return confirm('Отправить документы и закрыть доступ к редактированию?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('submit_package_' ~ package.guid) }}">
+            <button type="submit" class="btn btn-primary">Отправить</button>
+            <p class="muted">После отправки пакет перейдёт в архив; правки будут недоступны.</p>
+        </form>
+    {% endif %}
+
+    <h2>История</h2>
+    <ul class="log-list">
+        {% for log in package.logs %}
+            <li>
+                <time>{{ log.createdAt|date('d.m.Y H:i') }}</time>
+                <strong>{{ log.eventLabel }}</strong>
+                {% if log.message %}<span>{{ log.message }}</span>{% endif %}
+            </li>
+        {% else %}
+            <li class="muted">Событий пока нет</li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}

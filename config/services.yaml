@@ -1,23 +1,31 @@
 # yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
 
-# This file is the entry point to configure your own services.
-# Files in the packages/ subdirectory configure your dependencies.
-# See also https://symfony.com/doc/current/service_container/import.html
-
-# Put parameters here that don't need to change on each machine where the app is deployed
-# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    env(HLK_FILES_DIR): '%kernel.project_dir%/public/files'
+    env(ONLYOFFICE_URL): '/oo'
+    env(ONLYOFFICE_APP_URL): 'auto'
+    env(ONLYOFFICE_JWT_SECRET): ''
+    env(ONLYOFFICE_DS_APP_URL): ''
+    env(ONLYOFFICE_INTERNAL_URL): ''
+    app.dirs.files.local: '%env(resolve:HLK_FILES_DIR)%'
+    app.dirs.files.public: '/files'
+    onlyoffice.url: '%env(ONLYOFFICE_URL)%'
+    onlyoffice.app_url: '%env(ONLYOFFICE_APP_URL)%'
+    onlyoffice.jwt_secret: '%env(ONLYOFFICE_JWT_SECRET)%'
+    onlyoffice.ds_app_url: '%env(ONLYOFFICE_DS_APP_URL)%'
+    onlyoffice.internal_url: '%env(ONLYOFFICE_INTERNAL_URL)%'
 
 services:
-    # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true
+        autoconfigure: true
+        bind:
+            $appDirsFilesLocal: '%app.dirs.files.local%'
+            $onlyOfficeUrl: '%onlyoffice.url%'
+            $onlyOfficeAppUrl: '%onlyoffice.app_url%'
+            $onlyOfficeJwtSecret: '%onlyoffice.jwt_secret%'
+            $onlyOfficeDsAppUrl: '%onlyoffice.ds_app_url%'
+            $onlyOfficeInternalUrl: '%onlyoffice.internal_url%'
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
-
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
