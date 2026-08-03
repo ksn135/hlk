@@ -41,7 +41,7 @@ class OnlyOfficeService
 
         $absolutePath = $this->fileStorage->getAbsolutePath($file);
         if (!is_file($absolutePath)) {
-            throw new \LogicException('Файл не найден на диске.');
+            throw new \LogicException('Файл "'.$absolutePath.'" не найден на диске.');
         }
 
         $appBaseUrl = $this->urlResolver->getDocumentServerAppBaseUrl();
