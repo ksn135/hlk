@@ -52,6 +52,12 @@ task('php-fpm:restart', function () {
     run('sudo systemctl restart php8.1-fpm.service');
 });
 
+desc('Compile Asset Mapper assets into public/assets');
+task('deploy:asset-map:compile', function () {
+    run('cd {{release_or_current_path}} && {{bin/console}} importmap:install {{console_options}}');
+    run('cd {{release_or_current_path}} && {{bin/console}} asset-map:compile {{console_options}}');
+});
+
 desc('Reset services');
 task('reset:services', [
     'redis:flush:all',
@@ -61,4 +67,5 @@ task('reset:services', [
 
 // Hooks
 after('deploy:failed', 'deploy:unlock');
+after('deploy:vendors', 'deploy:asset-map:compile');
 after('deploy:symlink', 'reset:services');
