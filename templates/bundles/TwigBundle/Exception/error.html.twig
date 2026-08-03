@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow,noarchive">
+    <title>{% block title %}Ошибка {{ status_code }} — ЛК контрагента{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>📄</text></svg>">
+    <style>
+        :root {
+            --bg: #f3f1ec;
+            --surface: #fffdf8;
+            --ink: #1c2430;
+            --muted: #5c6775;
+            --line: #d9d2c5;
+            --accent: #0f5c4c;
+            --accent-hover: #0a463a;
+            --danger: #8b2e2e;
+            --shadow: 0 10px 30px rgba(28, 36, 48, 0.08);
+            --font: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: var(--font);
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(15, 92, 76, 0.08), transparent 40%),
+                linear-gradient(180deg, #ebe6dc 0%, var(--bg) 40%, #e7efe9 100%);
+            display: grid;
+            place-items: center;
+            padding: 1.5rem;
+        }
+        .error-card {
+            width: min(560px, 100%);
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 2rem 2.1rem;
+            box-shadow: var(--shadow);
+        }
+        .error-code {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--danger);
+            background: #f8e8e8;
+            border-radius: 999px;
+            padding: 0.25rem 0.7rem;
+            margin-bottom: 1rem;
+        }
+        h1 {
+            margin: 0 0 0.5rem;
+            font-size: 1.65rem;
+            line-height: 1.25;
+        }
+        .lead {
+            margin: 0 0 1.25rem;
+            color: var(--muted);
+            line-height: 1.45;
+        }
+        .exception-box {
+            margin: 0 0 1.5rem;
+            padding: 0.95rem 1rem;
+            background: #f8e8e8;
+            border: 1px solid #e8c5c5;
+            border-radius: 12px;
+            color: var(--danger);
+            font-size: 0.98rem;
+            line-height: 1.45;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+        .exception-box .label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            opacity: 0.75;
+            margin-bottom: 0.35rem;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            padding: 0.7rem 1.1rem;
+            text-decoration: none;
+            font: inherit;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-primary:hover { background: var(--accent-hover); color: #fff; }
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--line);
+        }
+        .btn-secondary:hover { border-color: #b9cfc7; color: var(--accent-hover); }
+        .brand {
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+{% set titles = {
+    403: 'Доступ запрещён',
+    404: 'Страница не найдена',
+    500: 'Внутренняя ошибка сервера',
+} %}
+{% set leads = {
+    403: 'У вас нет прав для просмотра этой страницы.',
+    404: 'Запрошенный адрес не существует или был удалён.',
+    500: 'Что-то пошло не так при обработке запроса.',
+} %}
+<div class="error-card">
+    <div class="error-code">{{ status_code }} · {{ status_text }}</div>
+    <h1>{% block heading %}{{ titles[status_code]|default('Произошла ошибка') }}{% endblock %}</h1>
+    <p class="lead">{% block lead %}{{ leads[status_code]|default('Не удалось выполнить действие. Попробуйте ещё раз или вернитесь на главную.') }}{% endblock %}</p>
+
+    {% if exception.message is defined and exception.message %}
+        <div class="exception-box">
+            <span class="label">Сообщение</span>
+            {{ exception.message }}
+        </div>
+    {% endif %}
+
+    <div class="actions">
+        <a class="btn btn-primary" href="/">На главную</a>
+        <a class="btn btn-secondary" href="/login">Вход</a>
+        <a class="btn btn-secondary" href="javascript:history.back()">Назад</a>
+    </div>
+    <div class="brand">Личный кабинет контрагента</div>
+</div>
+</body>
+</html>
