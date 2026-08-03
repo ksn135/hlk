@@ -23,8 +23,8 @@
 ## Файлы и OnlyOffice
 
 - Копии при создании пакета: `HLK_FILES_DIR/review_packages/{guid}/…`
-- `HLK_FILES_DIR` должен совпадать с файловым стораджем Vis (`public/files`).
-- OnlyOffice: `/onlyoffice/editor/{id}/{mode}`, callback/download по JWT; DS по `/oo/` (прокси веб-сервера).
+- `HLK_FILES_DIR` = web-доступный `public/files` (общий с Vis).
+- OnlyOffice: см. [`onlyoffice.md`](onlyoffice.md) — `document.url` через `/files/…`, DS `/oo/`, Apache proxy.
 
 ## SQL (вручную)
 

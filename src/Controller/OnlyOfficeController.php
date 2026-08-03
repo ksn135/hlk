@@ -67,18 +67,34 @@ class OnlyOfficeController extends AbstractController
     #[Route('/onlyoffice/download/{token}', name: 'onlyoffice_download', methods: ['GET'])]
     public function download(string $token): Response
     {
-        $file = $this->resolveTokenFile($token);
-        $path = $this->fileStorage->getAbsolutePath($file);
-        if (!is_file($path)) {
-            throw new NotFoundHttpException();
+        try {
+            $file = $this->resolveTokenFile($token);
+            $path = $this->fileStorage->getAbsolutePath($file);
+            if (!is_file($path)) {
+                $this->logger->error('OnlyOffice download: file missing', [
+                    'path' => $path,
+                    'fileId' => $file->getId(),
+                    'filename' => $file->getFilename(),
+                ]);
+                throw new NotFoundHttpException();
+            }
+
+            $response = new BinaryFileResponse($path);
+            $response->setContentDisposition(
+                ResponseHeaderBag::DISPOSITION_INLINE,
+                $file->getDisplayName(),
+                'document.'.$this->guessExtension($file)
+            );
+            $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+            $response->headers->set('Cache-Control', 'private, no-cache');
+
+            return $response;
+        } catch (\Throwable $e) {
+            $this->logger->error('OnlyOffice download failed: '.$e->getMessage(), [
+                'tokenPrefix' => substr($token, 0, 24),
+            ]);
+            throw $e;
         }
-
-        $response = new BinaryFileResponse($path);
-        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE, $file->getDisplayName());
-        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-        $response->headers->set('Cache-Control', 'private, no-cache');
-
-        return $response;
     }
 
     #[Route('/onlyoffice/callback/{token}', name: 'onlyoffice_callback', methods: ['POST'])]
@@ -171,5 +187,12 @@ class OnlyOfficeController extends AbstractController
             throw new \LogicException('Не удалось сохранить файл на диск.');
         }
         clearstatcache(true, $targetPath);
+    }
+
+    private function guessExtension(ReviewPackageFile $file): string
+    {
+        $ext = strtolower(pathinfo($file->getDisplayName(), \PATHINFO_EXTENSION));
+
+        return '' !== $ext ? $ext : 'docx';
     }
 }

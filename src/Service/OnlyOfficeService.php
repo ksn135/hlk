@@ -13,6 +13,7 @@ class OnlyOfficeService
         private OnlyOfficeUrlResolver $urlResolver,
         private ReviewPackageFileStorage $fileStorage,
         private UrlGeneratorInterface $urlGenerator,
+        private string $appDirsFilesPublic,
     ) {
     }
 
@@ -44,12 +45,9 @@ class OnlyOfficeService
             throw new \LogicException('Файл "'.$absolutePath.'" не найден на диске.');
         }
 
+        // Document Server качает файл сам: надёжнее отдавать статику /files/… (как в Vis).
         $appBaseUrl = $this->urlResolver->getDocumentServerAppBaseUrl();
-        $downloadUrl = $appBaseUrl.$this->urlGenerator->generate(
-            'onlyoffice_download',
-            ['token' => $accessToken],
-            UrlGeneratorInterface::ABSOLUTE_PATH
-        );
+        $downloadUrl = $this->buildPublicFileUrl($appBaseUrl, $file->getFilename());
         $callbackUrl = $appBaseUrl.$this->urlGenerator->generate(
             'onlyoffice_callback',
             ['token' => $accessToken],
@@ -108,6 +106,15 @@ class OnlyOfficeService
     {
         $mtime = (string) filemtime($absolutePath);
 
-        return substr(hash('sha256', ReviewPackageFile::class.':'.$file->getId().':'.$mtime), 0, 20);
+        return hash('sha256', ReviewPackageFile::class.':'.$file->getId().':'.$mtime);
+    }
+
+    private function buildPublicFileUrl(string $appBaseUrl, string $relativeFilename): string
+    {
+        $prefix = rtrim($this->appDirsFilesPublic, '/');
+        $normalized = str_replace('\\', '/', ltrim($relativeFilename, '/'));
+        $encodedName = implode('/', array_map(rawurlencode(...), explode('/', $normalized)));
+
+        return $appBaseUrl.$prefix.'/'.$encodedName;
     }
 }

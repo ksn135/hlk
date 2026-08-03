@@ -21,6 +21,7 @@ services:
         autoconfigure: true
         bind:
             $appDirsFilesLocal: '%app.dirs.files.local%'
+            $appDirsFilesPublic: '%app.dirs.files.public%'
             $onlyOfficeUrl: '%onlyoffice.url%'
             $onlyOfficeAppUrl: '%onlyoffice.app_url%'
             $onlyOfficeJwtSecret: '%onlyoffice.jwt_secret%'
