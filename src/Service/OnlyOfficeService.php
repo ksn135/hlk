@@ -45,10 +45,12 @@ class OnlyOfficeService
             throw new \LogicException('Файл "'.$absolutePath.'" не найден на диске.');
         }
 
-        // Document Server качает файл сам: надёжнее отдавать статику /files/… (как в Vis).
-        $appBaseUrl = $this->urlResolver->getDocumentServerAppBaseUrl();
-        $downloadUrl = $this->buildPublicFileUrl($appBaseUrl, $file->getFilename());
-        $callbackUrl = $appBaseUrl.$this->urlGenerator->generate(
+        // document.url — откуда DS качает файл (может быть Vis, если файлы там).
+        // callbackUrl — всегда HLK (Symfony), иначе POST уйдёт на чужой хост.
+        $filesBaseUrl = $this->urlResolver->getDocumentServerAppBaseUrl();
+        $callbackBaseUrl = $this->urlResolver->getAppBaseUrl();
+        $downloadUrl = $this->buildPublicFileUrl($filesBaseUrl, $file->getFilename());
+        $callbackUrl = $callbackBaseUrl.$this->urlGenerator->generate(
             'onlyoffice_callback',
             ['token' => $accessToken],
             UrlGeneratorInterface::ABSOLUTE_PATH
