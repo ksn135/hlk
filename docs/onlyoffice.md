@@ -64,23 +64,15 @@ Deployer у HLK держит **отдельный** ` /var/www/hlk/shared/public
 
 ## «Загрузка не удалась» — чеклист
 
-1. В исходнике страницы редактора скопировать `document.url` и проверить **с сервера Document Server** (или с `vis`):
+1. **`/etc/hosts` на Document Server** (`192.168.3.140`): должна быть запись `lk.vodorodfilm.com` → IP веб-сервера (как для `vis`). Браузер резолвит DNS сам; DS качает `document.url` со своего хоста — без записи редактор открывается, файл — нет.
    ```bash
-   curl -sI "<document.url>"
+   # именно на 192.168.3.140:
+   curl -sI "https://lk.vodorodfilm.com/files/review_packages/<guid>/<file.docx>"
    ```
-   Нужен **200** и `Content-Type` для docx, не 404 и не 302 на `/login`.
+   Нужен **200**, не «Could not resolve host» / timeout.
 
-2. Сравнить путь PHP и веб:
-   ```bash
-   # что видит HLK
-   ls -la /var/www/hlk/current/public/files/review_packages/
-   readlink -f /var/www/hlk/shared/public/files
-   # куда пишет Vis
-   ls -la /var/www/vis/shared/public/files/review_packages/
-   ```
+2. JWT: `ONLYOFFICE_JWT_SECRET` = тот же, что у Vis / в `local.json` DS.
 
-3. JWT: `ONLYOFFICE_JWT_SECRET` = секрет из `local.json` Document Server (если JWT включён).
+3. `document.url` / `callbackUrl` на хосте **lk**; общий `/files` с Vis.
 
-4. `callbackUrl` на хосте **lk**; `document.url` — на хосте, где файл реально отдаётся (lk после symlink/Alias, либо vis).
-
-5. Прокси `/oo/` с `X-Forwarded-Host` = `lk.vodorodfilm.com/oo` (иначе iframe/ссылки уезжают на vis).
+4. Прокси `/oo/` с `X-Forwarded-Host` = `lk.vodorodfilm.com/oo`.
