@@ -9,7 +9,7 @@ class OnlyOfficeAccessTokenService
     ) {
     }
 
-    public function createToken(string $fileClass, string $fileId, ?int $userId = null, int $ttlSeconds = 3600): string
+    public function createToken(string $fileClass, string $fileId, ?int $userId = null, int $ttlSeconds = 28800): string
     {
         $payload = [
             'class' => $fileClass,
